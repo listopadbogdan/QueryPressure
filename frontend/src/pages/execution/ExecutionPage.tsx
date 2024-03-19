@@ -4,16 +4,19 @@ import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Chart, Legend, Tooltip } from 'chart.js';
 import { Chart as ChartJS, LinearScale, LineController, LineElement, PointElement, Title } from 'chart.js';
 import { LineChart, CartesianGrid, XAxis, YAxis, Line } from 'recharts';
+import { useSearchParams } from 'react-router-dom';
+import { log } from 'console';
 
 ChartJS.register(LineController, LineElement, PointElement, LinearScale, Title);
 
-const setupConnection = (id: string, setMetric: (total: number) => void) => {
+const setupConnection = (id: string, setMetric: (total: number, throughputs_handled: number) => void) => {
     const connection = new HubConnectionBuilder()
         .withUrl(`/ws/dashboard?executionId=${id}`)
         .build();
 
     connection.on('live-metrics', (metric) => {
-        setMetric(metric.metrics.filter((x: any) => x.name === 'live-request-count')[0].value);
+        setMetric(metric.metrics.filter((x: any) => x.name === 'live-request-count')[0].value,
+        metric.metrics.filter((x: any) => x.name === 'live-throughput-handled')[0].value);
     });
 
 
@@ -27,17 +30,30 @@ const setupConnection = (id: string, setMetric: (total: number) => void) => {
 };
 
 export const ExecutionPage: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+    const [searchParams] = useSearchParams();
+
+    const id = searchParams.get("id");
     const [metric, setMetric] = useState<number>(0); // Initial metric value
     const [chartData, setChartData] = useState<{ x: number, y: number }[]>([]);
 
+    const [chartDataThroughput, setChartDataThroughput] = useState<{ x: number, y: number }[]>([]);
+    
     useEffect(() => {
         if (!id) return;
-        setupConnection(id, (m) => {
+        setupConnection(id, (m, td) => {
             setMetric(m);
-            setChartData([...chartData, { y: m, x: chartData.length }]);
+            setChartData(chartData => [...chartData, { y: m, x: chartData.length }]);
+            setChartDataThroughput(chartDataThroughput => [...chartDataThroughput, { y: td, x: chartDataThroughput.length }]);
         });
-    }, [chartData, id]);
+    }, []);
+
+    useEffect(() => {
+        console.log(chartData);
+    }, [chartData]);
+
+    useEffect(() => {
+        console.log(metric);
+    }, [metric]);
 
     return (
         <>
@@ -50,6 +66,7 @@ export const ExecutionPage: React.FC = () => {
                 <p>Executed {metric}</p>
             </div>
             <div>
+                <h1>Total executions</h1>
                 <LineChart
                     width={500}
                     height={300}
@@ -58,9 +75,24 @@ export const ExecutionPage: React.FC = () => {
                         top: 5, right: 30, left: 20, bottom: 5,
                     }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="x" />
                     <YAxis />
-                    <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ r: 8 }} />
+                    <Line type="monotone" dataKey="y" stroke="#8884d8" activeDot={{ r: 8 }} />
+                </LineChart>
+            </div>
+            <div>
+                <h1>Throughput handled</h1>
+                <LineChart
+                    width={500}
+                    height={300}
+                    data={chartDataThroughput}
+                    margin={{
+                        top: 5, right: 30, left: 20, bottom: 5,
+                    }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="x" />
+                    <YAxis />
+                    <Line type="monotone" dataKey="y" stroke="#8884d8" activeDot={{ r: 8 }} />
                 </LineChart>
             </div>
         </>

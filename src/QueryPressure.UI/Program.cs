@@ -51,7 +51,7 @@ api.MapPost("/execution/{executionId:guid}/cancel", (Guid executionId, ProviderM
 api.MapGet("/resources/{locale}", (IResourceManager manager, string locale) =>
   manager.GetResources(locale, ResourceFormat.Html));
 
-api.MapGet("/locales", () => new[] { "en-US", "uk-UA" });
+api.MapGet("/locales", () => new[] { "en-US", "uk-UA", "ru-RU" });
 
 app.Run();
 

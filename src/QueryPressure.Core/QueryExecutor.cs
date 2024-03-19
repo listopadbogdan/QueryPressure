@@ -61,6 +61,9 @@ public class QueryExecutor
         }, token);
       }
     }
-    catch (OperationCanceledException) { }
+    catch (OperationCanceledException e)
+    {
+      Console.WriteLine(e.Message);
+    }
   }
 }

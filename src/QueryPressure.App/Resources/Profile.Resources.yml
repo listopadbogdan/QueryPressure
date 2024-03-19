@@ -50,3 +50,30 @@ uk-UA:
       description: Виконувати з цільовим рівнем запитів за секунду.
       arguments:
         rps: Запитів за секунду
+
+ru-RU:
+  profiles:
+    limitedConcurrency:
+      title: Многопоточный
+      description: Выполнять запросы параллельно с указанным количеством потоков
+      arguments:
+        limit: Количество потоков
+    limitedConcurrencyWithDelay:
+      title: Многопоточный с задержкой
+      description: Выполнять запросы параллельно с заданным количеством потоков с задержкой между запросами в каждом потоке.
+      arguments:
+        limit: Количество потоков
+        delay: Задержка
+    sequential:
+      title: Однопоточный последовательный
+      description: Выполнение запросов в одном потоке без задержек.
+    sequentialWithDelay:
+      title: Однопоточный с задержкой
+      description: Выполнять запросы в одном потоке с задержкой.
+      arguments:
+        delay: Задержка
+    targetThroughput:
+      title: Целевая нагрузка
+      description: Выполнять с целевым уровнем запросов в секунду.
+      arguments:
+        rps: Запросы в секунду

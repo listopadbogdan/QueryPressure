@@ -30,7 +30,10 @@ export function ConfigurationCard(
       script: script,
       profile: selectedProfile!,
       limit: selectedLimit
-    }).then(executionId => setExecutionId(executionId));
+    }).then(executionId => {
+      setExecutionId(executionId);
+      executionId
+    });
   }
 
   function cancel(event: BaseSyntheticEvent) {

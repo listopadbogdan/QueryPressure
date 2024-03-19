@@ -17,6 +17,13 @@ public static class FrontendWebApplicationExtensions
 
       app.UseFileServer(new FileServerOptions()
       {
+        RequestPath = "/execution",
+        FileProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly, "dist/"),
+        EnableDefaultFiles = true,
+      });
+
+      app.UseFileServer(new FileServerOptions()
+      {
         RequestPath = "/img",
         FileProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly, "dist/img/"),
         EnableDefaultFiles = true,
