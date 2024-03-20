@@ -101,7 +101,6 @@ export function EditorCard(
               defaultValue=''
               theme={theme === 'dark' ? 'vs-dark' : 'light'}/>
         </div>
-        <MonitoringScreen executionId={executionId} showMonitor={showMonitor} toggleMonitor={toggleMonitor} toggleCancelButton={toggleCancelButton}/>
         <StatusBar status="Ready"
                    providers={providers}
                    selectedProvider={selectedProvider}
