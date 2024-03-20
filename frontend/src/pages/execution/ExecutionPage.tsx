@@ -66,7 +66,7 @@ export const ExecutionPage: React.FC = () => {
                 <p>Executed {metric}</p>
             </div>
             <div>
-                <h1>Total executions</h1>
+                <h2>Total executions</h2>
                 <LineChart
                     width={500}
                     height={300}
@@ -81,7 +81,7 @@ export const ExecutionPage: React.FC = () => {
                 </LineChart>
             </div>
             <div>
-                <h1>Throughput handled</h1>
+                <h2>Throughput handled</h2>
                 <LineChart
                     width={500}
                     height={300}
@@ -94,6 +94,54 @@ export const ExecutionPage: React.FC = () => {
                     <YAxis />
                     <Line type="monotone" dataKey="y" stroke="#8884d8" activeDot={{ r: 8 }} />
                 </LineChart>
+            </div>
+            <div>
+                <h2>Results: summary</h2>
+                <table border={1}>
+                    <tr>
+                        <td>min</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>q1</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>median</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>q3</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>max</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>mean</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>standard-deviation</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>standard-error</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>confidence-interval</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>error-count</td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <div>
+                <h2>Results: histogram</h2>
             </div>
         </>
     );

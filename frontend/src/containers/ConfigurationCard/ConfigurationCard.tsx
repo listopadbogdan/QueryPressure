@@ -32,7 +32,8 @@ export function ConfigurationCard(
       limit: selectedLimit
     }).then(executionId => {
       setExecutionId(executionId);
-      executionId
+      
+      window.open(`/execution/?id=${executionId}`, "_blank");
     });
   }
 
