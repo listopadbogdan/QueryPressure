@@ -49,6 +49,8 @@ internal class Execution // TODO: interesting idea for refactoring: use MediatR 
       await NotifyAsync(liveVisualization);
     }
     await _hubService.SendCompletionStatusAsync(Id, executeTask.IsCompletedSuccessfully, executeTask.Exception?.Message, default);
+
+
   }
 
   private async Task NotifyAsync(IVisualization liveVisualization)
