@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using QueryPressure.App.Arguments;
 using QueryPressure.App.Interfaces;
 using QueryPressure.Core.Interfaces;
+using QueryPressure.Metrics.Core;
 using QueryPressure.UI.Hubs;
 using QueryPressure.UI.Interfaces;
 
@@ -46,16 +47,19 @@ internal class Execution // TODO: interesting idea for refactoring: use MediatR 
     {
       await Task.WhenAny(executeTask, Task.Delay(200, cancellationToken));
       var liveVisualization = await _visualizer.VisualizeAsync(_liveMetricProviders.SelectMany(x => x.GetMetrics()), cancellationToken);
-      await NotifyAsync(liveVisualization);
+      await NotifyAsync(liveVisualization, cancellationToken);
     }
-    await _hubService.SendCompletionStatusAsync(Id, executeTask.IsCompletedSuccessfully, executeTask.Exception?.Message, default);
 
 
+    StatisticalMetricsProvider smp = new StatisticalMetricsProvider();
+
+    var metrics = await smp.CalculateAsync(_store, cancellationToken, true); // IEnumerable<IMetric>
+    await _hubService.SendCompletionStatusAsync(Id, executeTask.IsCompletedSuccessfully, executeTask.Exception?.Message, metrics, cancellationToken);
   }
 
-  private async Task NotifyAsync(IVisualization liveVisualization)
+  private async Task NotifyAsync(IVisualization liveVisualization, CancellationToken cancellationToken)
   {
     Console.WriteLine(liveVisualization.ToJson());
-    await _hubService.SendExecutionMetricAsync(Id, liveVisualization, default);
+    await _hubService.SendExecutionMetricAsync(Id, liveVisualization, cancellationToken);
   }
 }
