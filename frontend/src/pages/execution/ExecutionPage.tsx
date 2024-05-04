@@ -9,7 +9,7 @@ import {useTheme} from '@hooks/useTheme';
 
 ChartJS.register(LineController, LineElement, PointElement, LinearScale, Title);
 
-const setupConnection = (id: string, setMetric: (total: number, throughputs_handled: number, rps: number, errors: number, rps_a: number) => void, setResults: (obj: any) => void) => {
+const setupConnection = (id: string, setMetric: (total: number, throughputs_handled: number, errors: number, rps_a: number) => void, setResults: (obj: any) => void) => {
     const connection = new HubConnectionBuilder()
         .withUrl(`/ws/dashboard?executionId=${id}`)
         .build();
@@ -17,7 +17,6 @@ const setupConnection = (id: string, setMetric: (total: number, throughputs_hand
     connection.on('live-metrics', (metric) => {
         setMetric(metric.metrics.filter((x: any) => x.name === 'live-request-count')[0].value,
         metric.metrics.filter((x: any) => x.name === 'live-throughput-handled')[0].value,
-        metric.metrics.filter((x: any) => x.name === 'live-rps')[0].value,
         metric.metrics.filter((x: any) => x.name === 'live-error-count')[0].value,
         metric.metrics.filter((x: any) => x.name === 'live-rps-avg')[0].value);
     });
@@ -55,15 +54,13 @@ export const ExecutionPage: React.FC = () => {
     const [chartData, setChartData] = useState<{ x: number, y: number }[]>([]);
 
     const [chartDataThroughput, setChartDataThroughput] = useState<{ x: number, y: number }[]>([]);
-    const [chartDataRps, setChartDataRps] = useState<{ x: number, y: number }[]>([]);
     
     useEffect(() => {
         if (!id) return;
-        setupConnection(id, (m, td, rps, errors, rps_a) => {
+        setupConnection(id, (m, td, errors, rps_a) => {
             setMetric(m);
             setChartData(chartData => [...chartData, { y: m, x: chartData.length }]);
             setChartDataThroughput(chartDataThroughput => [...chartDataThroughput, { y: td, x: chartDataThroughput.length }]);
-            setChartDataRps(chartDataRps => [...chartDataRps, { y: rps, x: chartDataRps.length }]);
             setErrorsCount(errors);
             setRpsAvg(rps_a);
         },
@@ -120,26 +117,11 @@ export const ExecutionPage: React.FC = () => {
                     </LineChart>
                 </div>
                 <div>
-                    <h2>Throughput handled</h2>
+                    <h2>Throughput handled (RPS)</h2>
                     <LineChart
                         width={500}
                         height={300}
                         data={chartDataThroughput}
-                        margin={{
-                            top: 5, right: 30, left: 20, bottom: 5,
-                        }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="x" />
-                        <YAxis />
-                        <Line type="monotone" dataKey="y" stroke="#8884d8" activeDot={{ r: 8 }} />
-                    </LineChart>
-                </div>
-                <div>
-                    <h2>RPS</h2>
-                    <LineChart
-                        width={500}
-                        height={300}
-                        data={chartDataRps}
                         margin={{
                             top: 5, right: 30, left: 20, bottom: 5,
                         }}>
