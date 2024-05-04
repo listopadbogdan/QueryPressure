@@ -9,7 +9,7 @@ namespace QueryPressure.Metrics.Core;
 public class StatisticalMetricsProvider : IMetricProvider
 {
 
-  public Task<IEnumerable<IMetric>> CalculateAsync(IExecutionResultStore store, CancellationToken cancellationToken)
+  public Task<IEnumerable<IMetric>> CalculateAsync(IExecutionResultStore store, CancellationToken cancellationToken, bool simplifedHistogram = false)
   {
     var sorted = store.OrderBy(x => x.Duration)
       .Select(x => x.Duration.TotalNanoseconds)
@@ -31,8 +31,38 @@ public class StatisticalMetricsProvider : IMetricProvider
       new SimpleMetric("standard-deviation", TimeInterval.FromNanoseconds(moments.StandardDeviation)),
       new SimpleMetric("standard-error", TimeInterval.FromNanoseconds(standardError)),
       new SimpleMetric("confidence-interval", confidenceInterval),
-      new SimpleMetric("histogram", histogram),
     };
+
+    if (!simplifedHistogram)
+    {
+      results = results.Concat(new[] {new SimpleMetric("histogram", histogram)});
+    }
+    else
+    {
+      List<SimpleHistogram> sh = new List<SimpleHistogram>();
+      string[] source1 = new string[histogram.Bins.Length];
+      string[] source2 = new string[histogram.Bins.Length];
+      Func<double, string> formatter = x =>
+      {
+        var timeInterval = TimeInterval.FromNanoseconds(x);
+        return timeInterval.ToString();
+      };
+      for (int index = 0; index < histogram.Bins.Length; ++index)
+      {
+        source1[index] = formatter(histogram.Bins[index].Lower);
+        source2[index] = formatter(histogram.Bins[index].Upper);
+      }
+      int totalWidth1 = ((IEnumerable<string>) source1).Max<string>((Func<string, int>) (it => it.Length));
+      int totalWidth2 = ((IEnumerable<string>) source2).Max<string>((Func<string, int>) (it => it.Length));
+      for (int index = 0; index < histogram.Bins.Length; ++index)
+      {
+        string interval = "[" + source1[index].PadLeft(totalWidth1) + " ; " + source2[index].PadLeft(totalWidth2) + ")";
+        int value = histogram.Bins[index].Count;
+        sh.Add(new SimpleHistogram(interval, value));
+      }
+
+      results = results.Concat(new[] {new SimpleMetric("histogram", sh)});
+    }
 
     return Task.FromResult(results);
   }

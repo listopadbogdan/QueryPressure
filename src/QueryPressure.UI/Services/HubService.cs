@@ -23,13 +23,14 @@ public class HubService<THub> : IHubService<THub> where THub : Hub
     await _hubContext.Clients.Group(executionId.ToString()).SendAsync("live-metrics", metric, cancellationToken);
   }
 
-  public Task SendCompletionStatusAsync(Guid executionId, bool isCompletedSuccessfully, string? message, CancellationToken cancellationToken)
+  public Task SendCompletionStatusAsync(Guid executionId, bool isCompletedSuccessfully, string? message, IEnumerable<IMetric> metrics, CancellationToken cancellationToken)
   {
     // TODO: it's POC version, refactor it later
-    return _hubContext.Clients.All.SendAsync("execution-completed", new
+    return _hubContext.Clients.Group(executionId.ToString()).SendAsync("execution-completed", new
     {
       IsCompletedSuccessfully = isCompletedSuccessfully,
       Message = message,
+      Metrics = metrics
     }, cancellationToken);
   }
 }

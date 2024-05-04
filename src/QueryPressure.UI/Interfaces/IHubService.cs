@@ -7,5 +7,5 @@ public interface IHubService<THub> where THub : Hub
 {
   Task SendMessageToAllAsync<T>(string method, T data);
   Task SendExecutionMetricAsync(Guid executionId, IVisualization metric, CancellationToken cancellationToken);
-  Task SendCompletionStatusAsync(Guid executionId, bool IsCompletedSuccessfully, string? message, CancellationToken cancellationToken);
+  Task SendCompletionStatusAsync(Guid executionId, bool IsCompletedSuccessfully, string? message, IEnumerable<IMetric> metrics, CancellationToken cancellationToken);
 }
