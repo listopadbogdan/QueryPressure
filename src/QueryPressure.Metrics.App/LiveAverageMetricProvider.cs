@@ -23,5 +23,6 @@ public class LiveAverageMetricProvider : ILiveMetricProvider
         ? TimeInterval.FromNanoseconds(0)
         : TimeInterval.FromNanoseconds((double)_totalNanoseconds / _count));
     yield return new SimpleMetric("live-request-count", _count);
+    yield return new SimpleMetric("live-rps-avg", (double)_count/_totalNanoseconds*1000000000);
   }
 }
